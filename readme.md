@@ -14,7 +14,7 @@ NyaaTorrents Torrent Downloader (Автор vknkk)
  - (опционально) Компилируем searchload.exe 
    
 ```
-bamcompile.exe searchload.php 
+bamcompile.exe -i:icon.ico searchload.php
 ```
 > http://www.bambalam.se/bamcompile
 
@@ -23,7 +23,7 @@ bamcompile.exe searchload.php
 
 
 ## Регистрация в контексном меню "Отправить"
- -Запуситите AddToSendTo.bat
+ -Запустите AddToSendTo.bat
 
 ## Удаление из контексного меню "Отправить"
 - Win+R
