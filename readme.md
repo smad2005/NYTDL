@@ -16,10 +16,22 @@ NyaaTorrents Torrent Downloader (Автор vknkk)
 ```
 bamcompile.exe searchload.php 
 ```
->> http://www.bambalam.se/bamcompile
+> http://www.bambalam.se/bamcompile
 
 - В config.json указан путь к uTorrent.exe
 - Кидаем в проводнике на searchload.exe субтитры (субтитры нужны только для указания каталога в котором будет произведен поиск всех остальных субтитров с расширением с  ass|ssa|srt
+
+
+## Регистрация в контексном меню "Отправить"
+ -Запуситите AddToSendTo.bat
+
+## Удаление из контексного меню "Отправить"
+- Win+R
+- Введите
+```
+shell:sendto
+```
+- Удалите ярлык NYTDL
 
 ---
 # Обсуждение:
