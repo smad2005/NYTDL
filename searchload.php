@@ -1,7 +1,5 @@
-<?php
-
+﻿<?php
 require_once './library.php';
-
 $videoexts = array(
     'mp4',
     'mkv',
@@ -44,8 +42,9 @@ if (isset($argv[1])) {
                         $torrents[] = array("name" => $subsMatch[1], "flag" => 0);
                 }
 }
-
+$dirnameRaw=$dirname;
 $dirname = escapeshellarg($dirname);
+
 if ($torrents) {
     $tmpSearchHTML = '';
     $context = stream_context_create(array(
@@ -68,10 +67,15 @@ if ($torrents) {
             $dwnUrl = html_entity_decode($linkmath[1]);
             copy($dwnUrl, $tmpFl, $context) or ( file_put_contents($tmpFl, file_get_contents(str_replace("&#38;", "&", $dwnUrl))));
             $runComand = TORCLI . ' /DIRECTORY ' . $dirname . ' ' . escapeshellarg($tmpFl);
+            if (isset($torname["oldname"]))
+            {
+                my_rename($torname["oldname"], $dirnameRaw."/". trim($torname["name"]).".ass");
+            }
             exec($runComand);
         } else {
-            if (!isset($torrents["flag"]) && ($nameFromAss = tryGetNameFromASS(trim($dirname, '"') . "/$torname[name].ass"))) {
-                $torrents[] = array("name" => $nameFromAss, "flag" => 1);
+            $fullname=$dirnameRaw . "/$torname[name].ass";
+            if (!isset($torrents["flag"]) && ($nameFromAss = tryGetNameFromASS($fullname))) {
+                $torrents[] = array("name" => $nameFromAss, "flag" => 1, "oldname"=>$fullname);
             } else {
                 // Файл не найден - будем выводить ссылку на поиск
                 $tmpSearchHTML .= '<p><a target="_blank" href="' . LINKSUFFIX . $linkname . '">' . $torname["name"] . '</a></p>';
