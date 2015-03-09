@@ -41,7 +41,7 @@ if (isset($argv[1])) {
                             break;
                         }
                     if (!$videoFound)
-                        $torrents[] = $subsMatch[1];
+                        $torrents[] = array("name" => $subsMatch[1], "flag" => 0);
                 }
 }
 
@@ -56,8 +56,9 @@ if ($torrents) {
     ));
 
     $torfiles = array();
-    foreach ($torrents as $k => $torname) {
-        $name = substr($torname, 0, ($pos = strpos($torname, '(', 5)) ? $pos + 1 : 60);
+    for ($i = 0; $i < count($torrents); $i++) {
+        $torname = $torrents[$i];
+        $name = substr($torname["name"], 0, ($pos = strpos($torname["name"], '(', 5)) ? $pos + 1 : 60);
         $linkname = rawurlencode('"' . $name . '"');
         $urlPath = LINKSUFFIX . $linkname;
         $html = file_get_contents($urlPath, false, $context) or ( $html = file_get_contents($urlPath));
@@ -69,8 +70,12 @@ if ($torrents) {
             $runComand = TORCLI . ' /DIRECTORY ' . $dirname . ' ' . escapeshellarg($tmpFl);
             exec($runComand);
         } else {
-            // Файл не найден - будем выводить ссылку на поиск
-            $tmpSearchHTML .= '<p><a target="_blank" href="' . LINKSUFFIX . $linkname . '">' . $torname . '</a></p>';
+            if (!isset($torrents["flag"]) && ($nameFromAss = tryGetNameFromASS(trim($dirname, '"') . "/$torname[name].ass"))) {
+                $torrents[] = array("name" => $nameFromAss, "flag" => 1);
+            } else {
+                // Файл не найден - будем выводить ссылку на поиск
+                $tmpSearchHTML .= '<p><a target="_blank" href="' . LINKSUFFIX . $linkname . '">' . $torname["name"] . '</a></p>';
+            }
         }
     }
 
@@ -79,6 +84,17 @@ if ($torrents) {
         file_put_contents($tmpFl = mktmpfile('htm'), $tmpSearchHTML);
         system($tmpFl);
     }
+}
+
+function tryGetNameFromASS($path) {
+    if (file_exists($path)) {
+        $content = file_get_contents($path);
+        if (preg_match("/^Video File:\s*(.*)\s*$/m", $content, $match)) {
+            $name = $match[1];
+            return $name;
+        }
+    }
+    return null;
 }
 
 function mktmpfile($ext) {
