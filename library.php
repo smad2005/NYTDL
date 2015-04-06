@@ -79,7 +79,12 @@ if (!function_exists('json_decode')) {
 
 //http://stackoverflow.com/questions/708017/can-a-php-file-name-or-a-dir-in-its-full-path-have-utf-8-characters
 function my_rename($src, $dst) {
-   system("myren.exe \"$src\" \"$dst\"") ;
+    system("myren.exe \"$src\" \"$dst\"");
+}
+
+function get_path_without_ext($path) {
+    $pos = strrpos($path, ".");
+    return $pos > 0 ? substr($path, 0, $pos) : $path;
 }
 
 ?>

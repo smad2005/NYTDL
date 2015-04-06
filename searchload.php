@@ -31,18 +31,19 @@ if (isset($argv[1])) {
     if ($dirname)
         if ($files = scandir($dirname))
             foreach ($files as $fileName)
-                if (preg_match('/^(.*)\.(?:' . SUBEXTS . ')$/', $fileName, $subsMatch)) {
+                if (preg_match('/^(.*)\.(' . SUBEXTS . ')$/', $fileName, $subsMatch)) {
                     $videoFound = false;
                     foreach ($videoexts as $ext)
                         if (in_array($subsMatch[1] . ".$ext", $files)) {
                             $videoFound = true;
                             break;
                         }
-                    if (!$videoFound)
-                        $torrents[] = array("name" => $subsMatch[1], "flag" => 0);
+                    if (!$videoFound) {
+                        $torrents[] = array("name" => $subsMatch[1], "flag" => 0, "ext" => $subsMatch[2]);
+                    }
                 }
 }
-$dirnameRaw=$dirname;
+$dirnameRaw = $dirname;
 $dirname = escapeshellarg($dirname);
 
 if ($torrents) {
@@ -67,15 +68,23 @@ if ($torrents) {
             $dwnUrl = html_entity_decode($linkmath[1]);
             copy($dwnUrl, $tmpFl, $context) or ( file_put_contents($tmpFl, file_get_contents(str_replace("&#38;", "&", $dwnUrl))));
             $runComand = TORCLI . ' /DIRECTORY ' . $dirname . ' ' . escapeshellarg($tmpFl);
-            if (isset($torname["oldname"]))
-            {
-                my_rename($torname["oldname"], $dirnameRaw."/". trim($torname["name"]).".ass");
+
+            if (preg_match('~<td class="viewtorrentname">(.*?)</td>~', $html, $torFileName)) {
+                $torFileName = $torFileName[1];
+                $torFileNameWithoutExt = get_path_without_ext($torFileName);
+                if (!$torname[flag] && strcasecmp($torname["name"], $torFileNameWithoutExt) != 0) {
+                    $torname["oldname"] = $dirnameRaw . "/" . $torname["name"] . ".$torname[ext]";
+                    $torname["name"] = $torFileNameWithoutExt;
+                }
+            }
+            if (isset($torname["oldname"])) {
+                my_rename($torname["oldname"], $dirnameRaw . "/" . trim($torname["name"] . ".$torname[ext]"));
             }
             exec($runComand);
         } else {
-            $fullname=$dirnameRaw . "/$torname[name].ass";
-            if (!isset($torrents["flag"]) && ($nameFromAss = tryGetNameFromASS($fullname))) {
-                $torrents[] = array("name" => $nameFromAss, "flag" => 1, "oldname"=>$fullname);
+            $fullname = $dirnameRaw . "/$torname[name].ass";
+            if (!$torname["flag"] && ($nameFromAss = tryGetNameFromASS($fullname))) {
+                $torrents[] = array("name" => get_path_without_ext($nameFromAss), "flag" => 1, "oldname" => $fullname, "ext" => $torname[ext]);
             } else {
                 // Файл не найден - будем выводить ссылку на поиск
                 $tmpSearchHTML .= '<p><a target="_blank" href="' . LINKSUFFIX . $linkname . '">' . $torname["name"] . '</a></p>';
