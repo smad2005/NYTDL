@@ -58,8 +58,8 @@ if ($torrents) {
     $torfiles = array();
     for ($i = 0; $i < count($torrents); $i++) {
         $torname = $torrents[$i];
-        $name = substr($torname["name"], 0, ($pos = strpos($torname["name"], '(', 5)) ? $pos + 1 : 60);
-        $linkname = rawurlencode('"' . $name . '"');
+        $name = $torname["name"];
+        $linkname = rawurlencode($name);
         $urlPath = LINKSUFFIX . $linkname;
         $html = file_get_contents($urlPath, false, $context) or ( $html = file_get_contents($urlPath));
         if (preg_match('~<div class="viewdownloadbutton">\s*<a href="([^"]*tid=(\d+)[^"]*)~', $html, $linkmath)) {
