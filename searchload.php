@@ -70,7 +70,7 @@ if ($torrents) {
             $runComand = TORCLI . ' /DIRECTORY ' . $dirname . ' ' . escapeshellarg($tmpFl);
 
             if (preg_match('~<td class="viewtorrentname">(.*?)</td>~', $html, $torFileName)) {
-                $torFileName = $torFileName[1];
+                $torFileName = htmlentities2utf8($torFileName[1]);
                 $torFileNameWithoutExt = get_path_without_ext($torFileName);
                 if (!$torname[flag] && strcasecmp($torname["name"], $torFileNameWithoutExt) != 0) {
                     $torname["oldname"] = $dirnameRaw . "/" . $torname["name"] . ".$torname[ext]";
