@@ -103,7 +103,7 @@ function tryGetNameFromASS($path) {
     if (file_exists($path)) {
         $content = file_get_contents($path);
         if (preg_match("/^Video File:\s*(.*)\s*$/m", $content, $match)) {
-            $name = $match[1];
+            $name = get_basename($match[1]);
             return $name;
         }
     }
