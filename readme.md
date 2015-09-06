@@ -1,16 +1,26 @@
+[![Build status](https://ci.appveyor.com/api/projects/status/mek1qv1la1de3411/branch/master?svg=true)](https://ci.appveyor.com/project/smad2005/nytdl/branch/master)
+
 # NYTDL
 NyaaTorrents Torrent Downloader (Автор vknkk)
 
 Данный PHP-скрипт предназначен для автоматизации поиска и загрузки аниме с сайта nyaa.se по **всем** имеющимся в папке субтитрам . 
 
+## Требования
+Windows Xp+, uTorrent
+
 # Инструкция:
 
-## 1 способ (необходим php 5.6):
+## 1 способ:
+ - Скачать из Release архив
+ - Запустите AddToSendTo.bat
+ - Кликните правой кнопкой мыши по субтитрам, пункт отправить, подпункт NYTDL
+
+## 2 способ через php (необходим php 5.6):
 - Редактируем searchload.bat и указываем путь к php.exe
 - В config.json указан путь к uTorrent.exe
 - Кидаем в проводнике на searchload.bat субтитры (субтитры нужны только для указания каталога в котором будет произведен поиск всех остальных субтитров с расширением с  ass|ssa|srt 
 
-## 2 способ:
+## 3 способ:
  - (опционально) Компилируем searchload.exe 
    
 ```
@@ -20,10 +30,6 @@ bamcompile.exe -i:icon.ico searchload.php
 
 - В config.json указан путь к uTorrent.exe
 - Кидаем в проводнике на searchload.exe субтитры (субтитры нужны только для указания каталога в котором будет произведен поиск всех остальных субтитров с расширением с  ass|ssa|srt
-
-## 3 способ:
- - Запустите AddToSendTo.bat
- - Кликните правой кнопкой мыши по субтитрам, пункт отправить, подпункт NYTDL
 
 
 ## Регистрация в контексном меню "Отправить"
