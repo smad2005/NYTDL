@@ -1,4 +1,4 @@
-[![Build status](https://ci.appveyor.com/api/projects/status/mek1qv1la1de3411/branch/master?svg=true)](https://ci.appveyor.com/project/smad2005/nytdl/branch/master)
+[![Build status](https://ci.appveyor.com/api/projects/status/mek1qv1la1de3411/branch/master?svg=true)](https://ci.appveyor.com/project/smad2005/nytdl/branch/master) [![Code Climate](https://codeclimate.com/github/smad2005/NYTDL/badges/gpa.svg)](https://codeclimate.com/github/smad2005/NYTDL) [![Coverage Status](https://coveralls.io/repos/smad2005/NYTDL/badge.svg?branch=&service=github)](https://coveralls.io/github/smad2005/NYTDL?branch=)
 
 # NYTDL
 NyaaTorrents Torrent Downloader (Автор vknkk)
