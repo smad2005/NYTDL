@@ -3,14 +3,14 @@
 if (!function_exists('sys_get_temp_dir')) {
 
     function sys_get_temp_dir() {
-        if (!empty($_ENV['TMP'])) {
-            return realpath($_ENV['TMP']);
+        if (!empty(getenv('TMP'))) {
+            return realpath(getenv('TMP'));
         }
-        if (!empty($_ENV['TMPDIR'])) {
-            return realpath($_ENV['TMPDIR']);
+        if (!empty(getenv('TMPDIR'))) {
+            return realpath(getenv('TMPDIR'));
         }
-        if (!empty($_ENV['TEMP'])) {
-            return realpath($_ENV['TEMP']);
+        if (!empty(getenv('TEMP'))) {
+            return realpath(getenv('TEMP'));
         }
         $tempfile = tempnam(__FILE__, '');
         if (file_exists($tempfile)) {

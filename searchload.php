@@ -126,3 +126,4 @@ function handleSubtitleFile($dirInfo, $torname, $context) {
         }
     }
 }
+?>
