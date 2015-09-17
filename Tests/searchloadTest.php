@@ -43,7 +43,7 @@ class searchloadTest extends PHPUnit_Framework_TestCase {
         //$this->testInitConfig();
         $this->createFiles(array(base64_decode('W0hvcnJpYmxlU3Vic10gRmF0ZSBLYWxlaWQgTGluZXIgUFJJU01BIElMWUEgMndlaSBIZXJ6ISAtIDA2IFs3MjAuYXNz'), '4.srt', '5.ass'));
         $badsubPath = TEST_DIR . '/5.ass';
-        file_put_contents($badsubPath, 'Video File: '. base64_decode('W09oeXMtUmF3c10gUHJpc29uIFNjaG9vbCAtIDA5IChNWCAxMjgweDcyMCB4MjY0IEFBQykubXA0'));
+        file_put_contents($badsubPath, 'Video File: ' . base64_decode('W09oeXMtUmF3c10gUHJpc29uIFNjaG9vbCAtIDA5IChNWCAxMjgweDcyMCB4MjY0IEFBQykubXA0'));
         $subtitlesList = initSubtitlesList(TEST_DIR);
         $dirInfo = array("dirnameRaw" => TEST_DIR, "dirname" => escapeshellarg(TEST_DIR));
         $context = stream_context_create(array('http' => array('timeout' => 20000, 'user_agent' => USERAGENT)));
@@ -70,6 +70,27 @@ class searchloadTest extends PHPUnit_Framework_TestCase {
             }
         }
         rmdir($dirPath);
+    }
+
+    function testChr_utf8() {
+        for ($i = 0; $i < 10000; $i++) {
+            if (chr_utf8($i) === false) {
+                $this->assertNotEquals(false, chr_utf8($i));
+            }
+        }
+        $this->assertNotEquals(false, chr_utf8(128521));
+        $this->assertEquals(false, chr_utf8(-10));
+    }
+
+    function testHtmlentities2utf8() {
+        echo htmlentities2utf8("&nbsp;");
+        $this->assertEquals(' ', htmlentities2utf8("&nbsp;"));
+        $this->assertEquals('¡', htmlentities2utf8("&iexcl;"));
+        $this->assertEquals('¢', htmlentities2utf8("&cent;"));
+        $this->assertEquals('£', htmlentities2utf8("&pound;"));
+        $this->assertEquals('¤', htmlentities2utf8("&curren;"));
+        $this->assertEquals('¥', htmlentities2utf8("&yen;"));
+        $this->assertEquals(false, htmlentities2utf8("&uknown;"));
     }
 
 }
