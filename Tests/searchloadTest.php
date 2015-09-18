@@ -5,6 +5,8 @@ define('TEST_DIR', 'Tests/examples');
 
 class searchloadTest extends PHPUnit_Framework_TestCase {
 
+    private $jsonConfigPath = "Tests/config.json";
+
     static function setUpBeforeClass() {
         chdir("..");
     }
@@ -23,8 +25,8 @@ class searchloadTest extends PHPUnit_Framework_TestCase {
     }
 
     function testInitConfig() {
-        $jsonConfigPath = 'Tests/config.json';
-        initConfig($jsonConfigPath);
+
+        initConfig($this->jsonConfigPath);
         $this->assertThat(TORCLI, $this->logicalNot($this->equalTo('')));
     }
 
@@ -91,6 +93,33 @@ class searchloadTest extends PHPUnit_Framework_TestCase {
         $this->assertEquals('¤', htmlentities2utf8("&curren;"));
         $this->assertEquals('¥', htmlentities2utf8("&yen;"));
         $this->assertEquals(false, htmlentities2utf8("&uknown;"));
+    }
+
+    function test_sys_get_temp_dir_PHP4() {
+        $tmp = getenv('TMP');
+        $tmpdir = getenv('TMPDIR');
+        $temp = getenv('TEMP');
+        putenv("TMP");
+        putenv("TMPDIR");
+        putenv("TEMP");
+        $this->assertNotEmpty(sys_get_temp_dirPHP4());
+        putenv("TEMP=tests");
+        $result = sys_get_temp_dirPHP4();
+        $this->assertNotEmpty($result);
+        putenv("TMPDIR=tests");
+        $this->assertNotEmpty(sys_get_temp_dirPHP4());
+        putenv("TMP=tests");
+        $this->assertNotEmpty(sys_get_temp_dirPHP4());
+        putenv("TMP=$tmp");
+        putenv("TMPDIR=$tmpdir");
+        putenv("TEMP=$temp");
+        $this->assertNotEmpty(sys_get_temp_dirPHP4());
+    }
+
+    function test_json_decode_PHP4() {
+        $json_config = file_get_contents($this->jsonConfigPath);
+        $json = json_decodePHP4($json_config);
+        $this->assertNotEmpty($json['TorrentPath']);
     }
 
 }

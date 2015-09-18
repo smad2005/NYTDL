@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 require_once 'library.php';
 define('VIDEO_EXTS', 'mp4|mkv|avi');
 define('SUBEXTS', 'ass|ssa|srt'); // Часть регекспа с расширениями файлов субтитров
@@ -95,12 +95,12 @@ function handleSubtitleFile($dirInfo, $torname, $context) {
     $name = $torname["name"];
     $linkname = rawurlencode($name);
     $urlPath = LINKSUFFIX . $linkname;
-    $html = file_get_contents($urlPath, false, $context) or ( $html = file_get_contents($urlPath));
+    $html = @file_get_contents($urlPath, false, $context) or ( $html = file_get_contents($urlPath));
     if (preg_match('~<div class="viewdownloadbutton">\s*<a href="([^"]*tid=(\d+)[^"]*)~', $html, $linkmath)) {
 // Найдена ссылка на загрузку файла - качаем
         $tmpFl = mktmpfile($linkmath[2] . '.torrent');
         $dwnUrl = html_entity_decode($linkmath[1]);
-        copy($dwnUrl, $tmpFl, $context) or ( file_put_contents($tmpFl, file_get_contents(str_replace("&#38;", "&", $dwnUrl))));
+        @copy($dwnUrl, $tmpFl, $context) or ( file_put_contents($tmpFl, file_get_contents(str_replace("&#38;", "&", $dwnUrl))));
         $runComand = TORCLI . ' /DIRECTORY ' . $dirname . ' ' . escapeshellarg($tmpFl);
 
         if (preg_match('~<td class="viewtorrentname">(.*?)</td>~', $html, $torFileName)) {

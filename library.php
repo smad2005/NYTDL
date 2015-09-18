@@ -3,23 +3,30 @@
 if (!function_exists('sys_get_temp_dir')) {
 
     function sys_get_temp_dir() {
-        if (!empty(getenv('TMP'))) {
-            return realpath(getenv('TMP'));
-        }
-        if (!empty(getenv('TMPDIR'))) {
-            return realpath(getenv('TMPDIR'));
-        }
-        if (!empty(getenv('TEMP'))) {
-            return realpath(getenv('TEMP'));
-        }
-        $tempfile = tempnam(__FILE__, '');
-        if (file_exists($tempfile)) {
-            unlink($tempfile);
-            return realpath(dirname($tempfile));
-        }
-        return null;
+        return sys_get_temp_dirPHP4();
     }
 
+}
+
+function sys_get_temp_dirPHP4() {
+    $tmp = getenv('TMP');
+    if (!empty($tmp)) {
+        return realpath($tmp);
+    }
+    $tmpdir = getenv('TMPDIR');
+    if (!empty($tmpdir)) {
+        return realpath($tmpdir);
+    }
+    $temp = getenv('TEMP');
+    if (!empty($temp)) {
+        return realpath($temp);
+    }
+    $tempfile = tempnam(__FILE__, '');
+    if (file_exists($tempfile)) {
+        unlink($tempfile);
+        return realpath(dirname($tempfile));
+    }
+    return null;
 }
 
 if (!function_exists('scandir')) {
@@ -41,7 +48,6 @@ if (!function_exists('scandir')) {
 if (!function_exists('file_put_contents')) {
 
     function file_put_contents($path, $data) {
-
         $file = fopen($path, "w");
         fwrite($file, $data);
         fclose($file);
@@ -52,29 +58,33 @@ if (!function_exists('file_put_contents')) {
 if (!function_exists('json_decode')) {
 
     function json_decode($json) {
-        // Author: walidator.info 2009
-        $comment = false;
-        $out = '$x=';
-
-        for ($i = 0; $i < strlen($json); $i++) {
-            if (!$comment) {
-                if ($json[$i] == '{')
-                    $out .= ' array(';
-                else if ($json[$i] == '}')
-                    $out .= ')';
-                else if ($json[$i] == ':')
-                    $out .= '=>';
-                else
-                    $out .= $json[$i];
-            } else
-                $out .= $json[$i];
-            if ($json[$i] == '"')
-                $comment = !$comment;
-        }
-        eval($out . ';');
-        return $x;
+        return json_decodePHP4($json);
     }
 
+}
+
+function json_decodePHP4($json) {
+    // Author: walidator.info 2009
+    $comment = false;
+    $out = '$x=';
+
+    for ($i = 0; $i < strlen($json); $i++) {
+        if (!$comment) {
+            if ($json[$i] == '{')
+                $out .= ' array(';
+            else if ($json[$i] == '}')
+                $out .= ')';
+            else if ($json[$i] == ':')
+                $out .= '=>';
+            else
+                $out .= $json[$i];
+        } else
+            $out .= $json[$i];
+        if ($json[$i] == '"')
+            $comment = !$comment;
+    }
+    eval($out . ';');
+    return $x;
 }
 
 //http://stackoverflow.com/questions/708017/can-a-php-file-name-or-a-dir-in-its-full-path-have-utf-8-characters
