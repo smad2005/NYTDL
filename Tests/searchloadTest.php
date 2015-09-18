@@ -122,6 +122,12 @@ class searchloadTest extends PHPUnit_Framework_TestCase {
         $this->assertNotEmpty($json['TorrentPath']);
     }
 
+    function testGetRealPath() {
+        putenv("testpath=testpath2");
+        $path = "%testpath%/some";
+        $this->assertEquals('testpath2/some', getPathWithEnv($path));
+    }
+
 }
 
 ?>

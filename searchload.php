@@ -19,6 +19,11 @@ $subtitlesList = array();
 $dirname = null;
 if (isset($argv[1])) {
     initConfig($jsonConfigPath);
+    if (!file_exists(getPathWithEnv(TORCLI))) {
+        echo TORCLI . " file not found, please check config.json";
+        sleep(10);
+        return;
+    }
     $dirname = dirname($argv[1]);
     $subtitlesList = initSubtitlesList($dirname);
 }
@@ -125,5 +130,12 @@ function handleSubtitleFile($dirInfo, $torname, $context) {
             return '<p><a target="_blank" href="' . LINKSUFFIX . $linkname . '">' . $torname["name"] . '</a></p>';
         }
     }
+}
+
+function pathWithEnv_callback($match) {
+    return getenv($match[1]);
+}
+function getPathWithEnv($path) {
+    return preg_replace_callback("|%(.*?)%|", 'pathWithEnv_callback', $path);
 }
 ?>
