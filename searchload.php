@@ -20,7 +20,7 @@ $dirname = null;
 if (isset($argv[1])) {
     initConfig($jsonConfigPath);
     if (!file_exists(getPathWithEnv(TORCLI))) {
-        echo TORCLI . " file not found, please check config.json";
+        cho TORCLI . " file not found, please check config.json";
         sleep(10);
         return;
     }
