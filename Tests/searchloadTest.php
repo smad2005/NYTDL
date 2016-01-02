@@ -20,7 +20,7 @@ class searchloadTest extends PHPUnit_Framework_TestCase {
         }
     }
 
-    function deleteTetsFolder() {
+    function deleteTestFolder() {
         self::deleteDir(TEST_DIR);
     }
 
@@ -37,11 +37,11 @@ class searchloadTest extends PHPUnit_Framework_TestCase {
         $subtitlesList = initSubtitlesList(TEST_DIR);
         $this->assertNotEmpty($subtitlesList);
         $this->assertEquals(2, count($subtitlesList));
-        $this->deleteTetsFolder();
+        $this->deleteTestFolder();
     }
 
     function testHandleSubtitleFile() {
-        $this->deleteTetsFolder();
+        $this->deleteTestFolder();
         //$this->testInitConfig();
         $this->createFiles(array(base64_decode('W0hvcnJpYmxlU3Vic10gRmF0ZSBLYWxlaWQgTGluZXIgUFJJU01BIElMWUEgMndlaSBIZXJ6ISAtIDA2IFs3MjAuYXNz'), '4.srt', '5.ass'));
         $badsubPath = TEST_DIR . '/5.ass';
@@ -53,7 +53,25 @@ class searchloadTest extends PHPUnit_Framework_TestCase {
         foreach ($subtitlesList as $sub)
             handleSubtitleFile($dirInfo, $sub, $context);
         $this->assertFileNotExists($badsubPath);
-        $this->deleteTetsFolder();
+        $this->deleteTestFolder();
+    }
+
+    function testHandleSubtitleFile_wrongVideoFile_fixedName() {
+        $this->deleteTestFolder();
+        //$this->testInitConfig();
+        $this->createFiles(array('5.ass'));
+        $badsubPath = TEST_DIR . '/5.ass';
+        file_put_contents($badsubPath, 'Video File: ' . base64_decode('W09oeXMtUmF3c10gVmFsa3lyaWUgRHJpdmUgTWVybWFpZCAtIDEx'));
+        $subtitlesList = initSubtitlesList(TEST_DIR);
+        $dirInfo = array("dirnameRaw" => TEST_DIR, "dirname" => escapeshellarg(TEST_DIR));
+        $context = stream_context_create(array('http' => array('timeout' => 20000, 'user_agent' => USERAGENT)));
+        $torrents = array();
+        foreach ($subtitlesList as $sub) {
+            handleSubtitleFile($dirInfo, $sub, $context);
+        }
+
+        $this->assertFileExists(TEST_DIR . '/'.base64_decode('W09oeXMtUmF3c10gVmFsa3lyaWUgRHJpdmUgTWVybWFpZCAtIDExIChBVC1YIDEyODB4NzIwIHgyNjQgQUFDKS5hc3M='));
+        $this->deleteTestFolder();
     }
 
     static function deleteDir($dirPath) {
