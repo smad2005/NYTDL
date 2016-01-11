@@ -32,8 +32,9 @@ if ($subtitlesList) {
     $tmpSearchHTML = '';
     $context = stream_context_create(array('http' => array('timeout' => 20000, 'user_agent' => USERAGENT)));
 
-    foreach ($subtitlesList as $sub)
+    foreach ($subtitlesList as $sub) {
         $tmpSearchHTML.= handleSubtitleFile($dirInfo, $sub, $context);
+    }
 
 
     if ($tmpSearchHTML) {
@@ -78,7 +79,7 @@ function initSubtitlesList($dirname) {
                         }
                     }
                     if (!$videoFound) {
-                        $subtitlesList[] = array("name" => $subsMatch[1], "flag" => 0, "ext" => $subsMatch[2]);
+                        $subtitlesList[] = array("name" => $subsMatch[1], "flag" => 0, "ext" => $subsMatch[2], "needQuotes" => 0);
                     }
                 }
             }
@@ -118,13 +119,20 @@ function handleSubtitleFile($dirInfo, $torname, $context) {
         if (isset($torname["oldname"])) {
             my_rename($torname["oldname"], $dirnameRaw . "/" . trim($torname["name"] . ".$torname[ext]"));
         }
-        exec($runComand);
+
+        sendToTorrent($runComand);
     } else {
+
         $fullname = $dirnameRaw . "/$torname[name].ass";
-        if (!$torname["flag"] && ($nameFromAss = tryGetNameFromASS($fullname))) {
-            $torname = array("name" => get_path_without_ext($nameFromAss), "flag" => 1, "oldname" => $fullname, "ext" => $torname["ext"]);
+        if (!$torname["flag"] && ($nameFromAss = get_path_without_ext(tryGetNameFromASS($fullname))) && $nameFromAss!=$torname['name'] ) {
+            $torname = array("name" => $nameFromAss, "flag" => 1, "oldname" => $fullname, "ext" => $torname["ext"], "needQuotes" => 1);
             return handleSubtitleFile($dirInfo, $torname, $context);
         } else {
+            if (!$torname["needQuotes"]) {
+                $torname["needQuotes"] = 1;
+                $torname["name"] = '"' . $torname["name"] . '"';
+                return handleSubtitleFile($dirInfo, $torname, $context);
+            }
 // Файл не найден - будем выводить ссылку на поиск
             return '<p><a target="_blank" href="' . LINKSUFFIX . $linkname . '">' . $torname["name"] . '</a></p>';
         }
@@ -134,7 +142,16 @@ function handleSubtitleFile($dirInfo, $torname, $context) {
 function pathWithEnv_callback($match) {
     return getenv($match[1]);
 }
+
 function getPathWithEnv($path) {
     return preg_replace_callback("|%(.*?)%|", 'pathWithEnv_callback', $path);
 }
-?>
+
+function sendToTorrent($runComand) {
+    if (defined('EXEC_PROC')) {
+        $func=EXEC_PROC;
+        $func($runComand);
+    } else {
+        exec($runComand);
+    }
+}
