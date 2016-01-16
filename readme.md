@@ -1,4 +1,4 @@
-[![Dobate button] (https://www.coinbase.com/assets/buttons/donation_small-210ad5fe8fe0846a0c6bc676e1bad3d462ab3fcbdaf2443de8755503d0729847.png)](https://www.coinbase.com/smad) [![Build status](https://ci.appveyor.com/api/projects/status/mek1qv1la1de3411/branch/master?svg=true)](https://ci.appveyor.com/project/smad2005/nytdl/branch/master) [![Code Climate](https://codeclimate.com/github/smad2005/NYTDL/badges/gpa.svg)](https://codeclimate.com/github/smad2005/NYTDL) 
+[![Build status](https://ci.appveyor.com/api/projects/status/mek1qv1la1de3411/branch/master?svg=true)](https://ci.appveyor.com/project/smad2005/nytdl/branch/master) [![Code Climate](https://codeclimate.com/github/smad2005/NYTDL/badges/gpa.svg)](https://codeclimate.com/github/smad2005/NYTDL) 
 [![Coverage Status](https://coveralls.io/repos/smad2005/NYTDL/badge.svg?branch=master&service=github)](https://coveralls.io/github/smad2005/NYTDL?branch=master)
 # NYTDL
 NyaaTorrents Torrent Downloader (Автор vknkk)
@@ -48,3 +48,4 @@ shell:sendto
 
 http://fansubs.ru/forum/viewtopic.php?p=672783#672783
 
+[![Dobate button] (https://cloud.githubusercontent.com/assets/1619549/12373301/b5ee7bdc-bc7d-11e5-9cfa-e1844cdda089.png)](https://www.coinbase.com/smad)
