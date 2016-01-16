@@ -14,12 +14,14 @@
 
 **Requirements**:
 Windows Xp+, uTorrent, .Net Framework 2.0+</description>
-     <projectSourceUrl>https://github.com/smad2005/NYTDL</projectSourceUrl>
+    <projectSourceUrl>https://github.com/smad2005/NYTDL</projectSourceUrl>
+    <packageSourceUrl>https://github.com/smad2005/NYTDL/tree/chocolatey</packageSourceUrl>
+    <projectUrl>https://github.com/smad2005/NYTDL</projectUrl>
     <bugTrackerUrl>https://github.com/smad2005/NYTDL/issues</bugTrackerUrl>
     <tags>nytdl nyaa fansubs</tags>
     <licenseUrl>https://raw.githubusercontent.com/smad2005/NYTDL/master/LICENSE</licenseUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
-    <!--<iconUrl>http://cdn.rawgit.com/__REPLACE_YOUR_REPO__/master/icons/nytdl.png</iconUrl>-->
+    <iconUrl>https://cdn.rawgit.com/smad2005/NYTDL/chocolatey/Logo.png</iconUrl>
     <!--<dependencies>
       <dependency id="" version="__VERSION__" />
       <dependency id="" />
