@@ -18,13 +18,14 @@ if ($tmpFiles = glob(TMPDIR . '/' . TMPPRFX . '*.*'))
 $subtitlesList = array();
 $dirname = null;
 if (isset($argv[1])) {
+    $path = $argv[1];
     initConfig($jsonConfigPath);
     if (!file_exists(getPathWithEnv(TORCLI))) {
         echo TORCLI . " file not found, please check config.json";
         sleep(10);
         return;
     }
-    $dirname = dirname($argv[1]);
+    $dirname = is_dir($path) ? $path : dirname($path);
     $subtitlesList = initSubtitlesList($dirname);
 }
 $dirInfo = array("dirnameRaw" => $dirname, "dirname" => escapeshellarg($dirname));
@@ -124,7 +125,7 @@ function handleSubtitleFile($dirInfo, $torname, $context) {
     } else {
 
         $fullname = $dirnameRaw . "/$torname[name].ass";
-        if (!$torname["flag"] && ($nameFromAss = get_path_without_ext(tryGetNameFromASS($fullname))) && $nameFromAss!=$torname['name'] ) {
+        if (!$torname["flag"] && ($nameFromAss = get_path_without_ext(tryGetNameFromASS($fullname))) && $nameFromAss != $torname['name']) {
             $torname = array("name" => $nameFromAss, "flag" => 1, "oldname" => $fullname, "ext" => $torname["ext"], "needQuotes" => 1);
             return handleSubtitleFile($dirInfo, $torname, $context);
         } else {
@@ -149,7 +150,7 @@ function getPathWithEnv($path) {
 
 function sendToTorrent($runComand) {
     if (defined('EXEC_PROC')) {
-        $func=EXEC_PROC;
+        $func = EXEC_PROC;
         $func($runComand);
     } else {
         exec($runComand);
