@@ -80,7 +80,7 @@ function initSubtitlesList($dirname) {
                         }
                     }
                     if (!$videoFound) {
-                        $subtitlesList[] = array("name" => $subsMatch[1], "flag" => 0, "ext" => $subsMatch[2], "needQuotes" => 0);
+                        $subtitlesList[] = array("name" => $subsMatch[1], "ext" => $subsMatch[2]);
                     }
                 }
             }
@@ -96,48 +96,85 @@ function initConfig($jsonConfigPath) {
     define('TORCLI', $torrentPath); // Путь к торрент-клиенту
 }
 
-function handleSubtitleFile($dirInfo, $torname, $context) {
-    $dirnameRaw = $dirInfo["dirnameRaw"];
-    $dirname = $dirInfo["dirname"];
+function getLinkName($torname) {
     $name = $torname["name"];
-    $linkname = rawurlencode($name);
+    return rawurlencode($name);
+}
+
+function hasFoundAnime($dirInfo, $torname, $context, &$linkmath, &$html) {
+    $linkname = getLinkName($torname);
     $urlPath = LINKSUFFIX . $linkname;
     $html = @file_get_contents($urlPath, false, $context) or ( $html = file_get_contents($urlPath));
-    if (preg_match('~<div class="viewdownloadbutton">\s*<a href="([^"]*tid=(\d+)[^"]*)~', $html, $linkmath)) {
-// Найдена ссылка на загрузку файла - качаем
-        $tmpFl = mktmpfile($linkmath[2] . '.torrent');
-        $dwnUrl = html_entity_decode($linkmath[1]);
-        @copy($dwnUrl, $tmpFl, $context) or ( file_put_contents($tmpFl, file_get_contents(str_replace("&#38;", "&", $dwnUrl))));
-        $runComand = TORCLI . ' /DIRECTORY ' . $dirname . ' ' . escapeshellarg($tmpFl);
+    return preg_match('~<div class="viewdownloadbutton">\s*<a href="([^"]*tid=(\d+)[^"]*)~', $html, $linkmath);
+}
 
-        if (preg_match('~<td class="viewtorrentname">(.*?)</td>~', $html, $torFileName)) {
-            $torFileName = htmlentities2utf8($torFileName[1]);
-            $torFileNameWithoutExt = get_path_without_ext($torFileName);
-            if (strcasecmp($torname["name"], $torFileNameWithoutExt) != 0) {
-                $torname["name"] = $torFileNameWithoutExt;
-            }
-        }
-        if (isset($torname["oldname"])) {
-            my_rename($torname["oldname"], $dirnameRaw . "/" . trim($torname["name"] . ".$torname[ext]"));
-        }
+function renameAndDownload($dirInfo, $torname, $context, $linkmath, $html) {
+    $dirnameRaw = $dirInfo["dirnameRaw"];
+    $dirname = $dirInfo["dirname"];
+    // Найдена ссылка на загрузку файла - качаем
+    $tmpFl = mktmpfile($linkmath[2] . '.torrent');
+    $dwnUrl = html_entity_decode($linkmath[1]);
+    @copy($dwnUrl, $tmpFl, $context) or ( file_put_contents($tmpFl, file_get_contents(str_replace("&#38;", "&", $dwnUrl))));
+    $runComand = TORCLI . ' /DIRECTORY ' . $dirname . ' ' . escapeshellarg($tmpFl);
 
-        sendToTorrent($runComand);
-    } else {
-
-        $fullname = $dirnameRaw . "/$torname[name].ass";
-        if (!$torname["flag"] && ($nameFromAss = get_path_without_ext(tryGetNameFromASS($fullname))) && $nameFromAss != $torname['name']) {
-            $torname = array("name" => $nameFromAss, "flag" => 1, "oldname" => $fullname, "ext" => $torname["ext"], "needQuotes" => 1);
-            return handleSubtitleFile($dirInfo, $torname, $context);
-        } else {
-            if (!$torname["needQuotes"]) {
-                $torname["needQuotes"] = 1;
-                $torname["name"] = '"' . $torname["name"] . '"';
-                return handleSubtitleFile($dirInfo, $torname, $context);
-            }
-// Файл не найден - будем выводить ссылку на поиск
-            return '<p><a target="_blank" href="' . LINKSUFFIX . $linkname . '">' . $torname["name"] . '</a></p>';
+    if (preg_match('~<td class="viewtorrentname">(.*?)</td>~', $html, $torFileName)) {
+        $torFileName = htmlentities2utf8($torFileName[1]);
+        $torFileNameWithoutExt = get_path_without_ext($torFileName);
+        if (strcasecmp($torname["name"], $torFileNameWithoutExt) != 0) {
+            $torname["name"] = $torFileNameWithoutExt;
         }
     }
+    if (isset($torname["oldname"])) {
+        my_rename($torname["oldname"], $dirnameRaw . "/" . trim($torname["name"] . ".$torname[ext]"));
+    }
+
+    sendToTorrent($runComand);
+}
+
+function HasFoundAndDownloaded($dirInfo, $torname, $context) {
+    $linkmath = null;
+    $html = null;
+    if (hasFoundAnime($dirInfo, $torname, $context, $linkmath, $html)) {
+        renameAndDownload($dirInfo, $torname, $context, $linkmath, $html);
+        return true;
+    }
+    return false;
+}
+
+function renameWithNameFromSub($dirInfo, &$torname) {
+    $dirnameRaw = $dirInfo["dirnameRaw"];
+    $fullname = $dirnameRaw . "/$torname[name].ass";
+    $nameFromAss = get_path_without_ext(tryGetNameFromASS($fullname));
+    if ($nameFromAss != $torname['name']) {
+        $torname = array("name" => $nameFromAss, "oldname" => $fullname, "ext" => $torname["ext"]);
+    }
+}
+
+function handleSubtitleFile($dirInfo, $torname, $context) {
+
+    if (!HasFoundAndDownloaded($dirInfo, $torname, $context)) { //general
+        addQuotes($torname);
+        if (!HasFoundAndDownloaded($dirInfo, $torname, $context)) { //with quotes
+            removeQutes($torname);
+            renameWithNameFromSub($dirInfo, $torname);
+            if (!HasFoundAndDownloaded($dirInfo, $torname, $context)) { //with name from sub
+                addQuotes($torname);
+                if (!HasFoundAndDownloaded($dirInfo, $torname, $context)) { //with name from sub with quotes
+                    // Файл не найден - будем выводить ссылку на поиск       
+                    $linkname = getLinkName($torname);
+                    return '<p><a target="_blank" href="' . LINKSUFFIX . $linkname . '">' . $torname["name"] . '</a></p>';
+                }
+            }
+        }
+    }
+}
+
+function addQuotes(&$torname) {
+    $torname["name"] = '"' . $torname["name"] . '"';
+}
+
+function removeQutes(&$torname) {
+    $torname["name"] = trim($torname["name"], '"');
 }
 
 function pathWithEnv_callback($match) {

@@ -11,6 +11,7 @@ function sendToTorrentFake($runComand) {
 class searchloadTest extends PHPUnit_Framework_TestCase {
 
     private $jsonConfigPath = "Tests/config.json";
+    private $dirInfo;
     private static $downloadCount;
 
     static function sendToTorrentFake($runComand) {
@@ -18,6 +19,7 @@ class searchloadTest extends PHPUnit_Framework_TestCase {
     }
 
     protected function setUp() {
+        $this->dirInfo = array("dirnameRaw" => TEST_DIR, "dirname" => escapeshellarg(TEST_DIR));
         searchloadTest::$downloadCount = 0;
         $this->deleteTestFolder();
     }
@@ -28,6 +30,10 @@ class searchloadTest extends PHPUnit_Framework_TestCase {
 
     function getFullPath($path) {
         return TEST_DIR . '/' . $path;
+    }
+
+    function getContext() {
+        return stream_context_create(array('http' => array('timeout' => 20000, 'user_agent' => USERAGENT)));
     }
 
     function createFiles($list) {
@@ -77,40 +83,32 @@ class searchloadTest extends PHPUnit_Framework_TestCase {
     }
 
     function testHandleSubtitleFile_CantfindWithoutQuotes_FindWithQuotes() {
-        $this->createFiles(array("[HorribleSubs] GATE - 13 [720p].ass"));
+        $this->createFiles(array(base64_decode("W0hvcnJpYmxlU3Vic10gR0FURSAtIDEzIFs3MjBwXS5hc3M=")));
         $subtitlesList = initSubtitlesList(TEST_DIR);
-        $dirInfo = array("dirnameRaw" => TEST_DIR, "dirname" => escapeshellarg(TEST_DIR));
-        $context = stream_context_create(array('http' => array('timeout' => 20000, 'user_agent' => USERAGENT)));
-        $torrents = array();
-        foreach ($subtitlesList as $sub)
-            handleSubtitleFile($dirInfo, $sub, $context);
+        foreach ($subtitlesList as $sub) {
+            handleSubtitleFile($this->dirInfo, $sub, $this->getContext());
+        }
         $this->assertEquals(1, searchloadTest::$downloadCount);
     }
 
     function testHandleSubtitleFile_CantfindWithoutQuotesWithBody_FindWithQuotes() {
-        $filename = base64_decode("W0hvcnJpYmxlU3Vic10gR0FURSAtIDEzIFs3MjBwXS5hc3M=");
+        $filename = "1.ass";
         $this->createFiles(array($filename));
-        file_put_contents($this->getFullPath($filename), 'Video File: ' . $filename);
+        file_put_contents($this->getFullPath($filename), 'Video File: ' . base64_decode("W0hvcnJpYmxlU3Vic10gR0FURSAtIDEzIFs3MjBwXS5hc3M="));
         $subtitlesList = initSubtitlesList(TEST_DIR);
-        $dirInfo = array("dirnameRaw" => TEST_DIR, "dirname" => escapeshellarg(TEST_DIR));
-        $context = stream_context_create(array('http' => array('timeout' => 20000, 'user_agent' => USERAGENT)));
-        $torrents = array();
-        foreach ($subtitlesList as $sub)
-            handleSubtitleFile($dirInfo, $sub, $context);
+        foreach ($subtitlesList as $sub) {
+            handleSubtitleFile($this->dirInfo, $sub, $this->getContext());
+        }
         $this->assertEquals(1, searchloadTest::$downloadCount);
     }
 
     function testHandleSubtitleFile() {
-
         $this->createFiles(array(base64_decode('W0hvcnJpYmxlU3Vic10gRmF0ZSBLYWxlaWQgTGluZXIgUFJJU01BIElMWUEgMndlaSBIZXJ6ISAtIDA2IFs3MjAuYXNz'), '4.srt', '5.ass'));
         $badsubPath = $this->getFullPath("5.ass");
         file_put_contents($badsubPath, 'Video File: ' . base64_decode('W09oeXMtUmF3c10gUHJpc29uIFNjaG9vbCAtIDA5IChNWCAxMjgweDcyMCB4MjY0IEFBQykubXA0'));
         $subtitlesList = initSubtitlesList(TEST_DIR);
-        $dirInfo = array("dirnameRaw" => TEST_DIR, "dirname" => escapeshellarg(TEST_DIR));
-        $context = stream_context_create(array('http' => array('timeout' => 20000, 'user_agent' => USERAGENT)));
-        $torrents = array();
         foreach ($subtitlesList as $sub) {
-            handleSubtitleFile($dirInfo, $sub, $context);
+            handleSubtitleFile($this->dirInfo, $sub, $this->getContext());
         }
         $this->assertEquals(2, searchloadTest::$downloadCount);
         $this->assertFileNotExists($badsubPath);
@@ -121,11 +119,8 @@ class searchloadTest extends PHPUnit_Framework_TestCase {
         $badsubPath = $this->getFullPath("5.ass");
         file_put_contents($badsubPath, 'Video File: ' . base64_decode('W09oeXMtUmF3c10gVmFsa3lyaWUgRHJpdmUgTWVybWFpZCAtIDEx'));
         $subtitlesList = initSubtitlesList(TEST_DIR);
-        $dirInfo = array("dirnameRaw" => TEST_DIR, "dirname" => escapeshellarg(TEST_DIR));
-        $context = stream_context_create(array('http' => array('timeout' => 20000, 'user_agent' => USERAGENT)));
-        $torrents = array();
         foreach ($subtitlesList as $sub) {
-            handleSubtitleFile($dirInfo, $sub, $context);
+            handleSubtitleFile($this->dirInfo, $sub, $this->getContext());
         }
         $this->assertEquals(1, searchloadTest::$downloadCount);
         $this->assertFileExists(TEST_DIR . '/' . base64_decode('W09oeXMtUmF3c10gVmFsa3lyaWUgRHJpdmUgTWVybWFpZCAtIDExIChBVC1YIDEyODB4NzIwIHgyNjQgQUFDKS5hc3M='));
