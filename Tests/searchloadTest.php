@@ -102,6 +102,34 @@ class searchloadTest extends PHPUnit_Framework_TestCase {
         $this->assertEquals(1, searchloadTest::$downloadCount);
     }
 
+    function testHandleSubtitleFile_WrongName_BuildHtml() {
+        $filename = "test";
+        $this->createFiles(array($filename . ".ass"));
+        $subtitlesList = initSubtitlesList(TEST_DIR);
+        $html = null;
+        foreach ($subtitlesList as $sub) {
+            $html.=handleSubtitleFile($this->dirInfo, $sub, $this->getContext());
+        }
+        $this->assertEquals(getSearchLink($filename), $html);
+        $this->assertEquals(0, searchloadTest::$downloadCount);
+    }
+
+    function testHandleSubtitleFile_WrongNameWithBody_BuildHtml() {
+        $filename = "test";
+        $newFilename = "test2";
+        $subname = $filename . ".ass";
+        $badsubPath = $this->getFullPath($subname);
+        $this->createFiles(array($subname));
+        file_put_contents($badsubPath, 'Video File: ' . $newFilename);
+        $subtitlesList = initSubtitlesList(TEST_DIR);
+        $html = null;
+        foreach ($subtitlesList as $sub) {
+            $html.=handleSubtitleFile($this->dirInfo, $sub, $this->getContext());
+        }
+        $this->assertEquals(getSearchLink($newFilename), $html);
+        $this->assertEquals(0, searchloadTest::$downloadCount);
+    }
+
     function testHandleSubtitleFile() {
         $this->createFiles(array(base64_decode('W0hvcnJpYmxlU3Vic10gRmF0ZSBLYWxlaWQgTGluZXIgUFJJU01BIElMWUEgMndlaSBIZXJ6ISAtIDA2IFs3MjAuYXNz'), '4.srt', '5.ass'));
         $badsubPath = $this->getFullPath("5.ass");
@@ -137,7 +165,6 @@ class searchloadTest extends PHPUnit_Framework_TestCase {
     }
 
     function testHtmlentities2utf8() {
-        echo htmlentities2utf8("&nbsp;");
         $this->assertEquals(' ', htmlentities2utf8("&nbsp;"));
         $this->assertEquals('¡', htmlentities2utf8("&iexcl;"));
         $this->assertEquals('¢', htmlentities2utf8("&cent;"));
