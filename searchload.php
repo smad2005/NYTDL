@@ -1,5 +1,5 @@
 <?php
-require_once 'library.php';
+require_once 'Libs/library.php';
 define('VIDEO_EXTS', 'mp4|mkv|avi');
 define('SUBEXTS', 'ass|ssa|srt'); // Часть регекспа с расширениями файлов субтитров
 define('LINKSUFFIX', 'http://www.nyaa.se/?page=search&cats=0_0&filter=0&term='); // Страница поиска субтитров
