@@ -1,4 +1,5 @@
 <?php
+
 require_once 'Libs/library.php';
 define('VIDEO_EXTS', 'mp4|mkv|avi');
 define('SUBEXTS', 'ass|ssa|srt'); // Часть регекспа с расширениями файлов субтитров
@@ -7,7 +8,6 @@ define('LINKSUFFIX', 'http://www.nyaa.se/?page=search&cats=0_0&filter=0&term=');
 // http://forum.utorrent.com/topic/46012-utorrent-command-line-options/
 define('TMPDIR', sys_get_temp_dir()); // Папка для временных файлов
 define('TMPPRFX', 'vknkk-nytdl'); // Префикс для наших временных файлов
-define('USERAGENT', 'Android-x86-1.6-r2 — Mozilla/5.0 (Linux; U; Android 1.6; en-us; eeepc Build/Donut) AppleWebKit/528.5+ (KHTML, like Gecko) Version/3.1.2 Mobile Safari/525.20.1');
 $jsonConfigPath = 'config.json';
 // Удаляем временные файлы, оставшиеся с прошлого раза
 if ($tmpFiles = glob(TMPDIR . '/' . TMPPRFX . '*.*'))
@@ -31,10 +31,9 @@ if (isset($argv[1])) {
 $dirInfo = array("dirnameRaw" => $dirname, "dirname" => escapeshellarg($dirname));
 if ($subtitlesList) {
     $tmpSearchHTML = '';
-    $context = stream_context_create(array('http' => array('timeout' => 20000, 'user_agent' => USERAGENT)));
 
     foreach ($subtitlesList as $sub) {
-        $tmpSearchHTML.= handleSubtitleFile($dirInfo, $sub, $context);
+        $tmpSearchHTML.= handleSubtitleFile($dirInfo, $sub);
     }
     if ($tmpSearchHTML) {
         // Вывод ссылок на поиск для файлов, которые небыли найдены
@@ -98,19 +97,19 @@ function getLinkName($name) {
     return LINKSUFFIX . rawurlencode($name);
 }
 
-function hasFoundAnime($dirInfo, $torname, $context, &$linkmath, &$html) {
+function hasFoundAnime($dirInfo, $torname, &$linkmath, &$html) {
     $linkname = getLinkName($torname["name"]);
-    $html = @file_get_contents($linkname, false, $context) or ( $html = file_get_contents($linkname));
+    $html = downloadString($linkname);
     return preg_match('~<div class="viewdownloadbutton">\s*<a href="([^"]*tid=(\d+)[^"]*)~', $html, $linkmath);
 }
 
-function renameAndDownload($dirInfo, $torname, $context, $linkmath, $html) {
+function renameAndDownload($dirInfo, $torname, $linkmath, $html) {
     $dirnameRaw = $dirInfo["dirnameRaw"];
     $dirname = $dirInfo["dirname"];
     // Найдена ссылка на загрузку файла - качаем
     $tmpFl = mktmpfile($linkmath[2] . '.torrent');
     $dwnUrl = html_entity_decode($linkmath[1]);
-    @copy($dwnUrl, $tmpFl, $context) or ( file_put_contents($tmpFl, file_get_contents(str_replace("&#38;", "&", $dwnUrl))));
+    file_put_contents($tmpFl, file_get_contents(str_replace("&#38;", "&", $dwnUrl)));
     $runComand = TORCLI . ' /DIRECTORY ' . $dirname . ' ' . escapeshellarg($tmpFl);
 
     if (preg_match('~<td class="viewtorrentname">(.*?)</td>~', $html, $torFileName)) {
@@ -127,11 +126,11 @@ function renameAndDownload($dirInfo, $torname, $context, $linkmath, $html) {
     sendToTorrent($runComand);
 }
 
-function HasFoundAndDownloaded($dirInfo, $torname, $context) {
+function HasFoundAndDownloaded($dirInfo, $torname) {
     $linkmath = null;
     $html = null;
-    if (hasFoundAnime($dirInfo, $torname, $context, $linkmath, $html)) {
-        renameAndDownload($dirInfo, $torname, $context, $linkmath, $html);
+    if (hasFoundAnime($dirInfo, $torname, $linkmath, $html)) {
+        renameAndDownload($dirInfo, $torname, $linkmath, $html);
         return true;
     }
     return false;
@@ -148,16 +147,16 @@ function renameWithNameFromSub($dirInfo, &$torname) {
     return false;
 }
 
-function handleSubtitleFile($dirInfo, $torname, $context) {
+function handleSubtitleFile($dirInfo, $torname) {
 
-    if (!HasFoundAndDownloaded($dirInfo, $torname, $context)) { //general
+    if (!HasFoundAndDownloaded($dirInfo, $torname)) { //general
         addQuotes($torname);
-        if (!HasFoundAndDownloaded($dirInfo, $torname, $context)) { //with quotes
+        if (!HasFoundAndDownloaded($dirInfo, $torname)) { //with quotes
             removeQutes($torname);
             $foundInSub = renameWithNameFromSub($dirInfo, $torname);
-            if ($foundInSub && !HasFoundAndDownloaded($dirInfo, $torname, $context)) { //with name from sub
+            if ($foundInSub && !HasFoundAndDownloaded($dirInfo, $torname)) { //with name from sub
                 addQuotes($torname);
-                if (!HasFoundAndDownloaded($dirInfo, $torname, $context)) { //with name from sub with quotes
+                if (!HasFoundAndDownloaded($dirInfo, $torname)) { //with name from sub with quotes
 // Файл не найден - будем выводить ссылку на поиск       
                     removeQutes($torname);
                     return getSearchLink($torname["name"]);

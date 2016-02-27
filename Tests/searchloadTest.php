@@ -32,10 +32,6 @@ class searchloadTest extends PHPUnit_Framework_TestCase {
         return TEST_DIR . '/' . $path;
     }
 
-    function getContext() {
-        return stream_context_create(array('http' => array('timeout' => 20000, 'user_agent' => USERAGENT)));
-    }
-
     function createFiles($list) {
         if (!file_exists(TEST_DIR)) {
             mkdir(TEST_DIR);
@@ -86,7 +82,7 @@ class searchloadTest extends PHPUnit_Framework_TestCase {
         $this->createFiles(array(base64_decode("W0hvcnJpYmxlU3Vic10gR0FURSAtIDEzIFs3MjBwXS5hc3M=")));
         $subtitlesList = initSubtitlesList(TEST_DIR);
         foreach ($subtitlesList as $sub) {
-            handleSubtitleFile($this->dirInfo, $sub, $this->getContext());
+            handleSubtitleFile($this->dirInfo, $sub);
         }
         $this->assertEquals(1, searchloadTest::$downloadCount);
     }
@@ -97,7 +93,7 @@ class searchloadTest extends PHPUnit_Framework_TestCase {
         file_put_contents($this->getFullPath($filename), 'Video File: ' . base64_decode("W0hvcnJpYmxlU3Vic10gR0FURSAtIDEzIFs3MjBwXS5hc3M="));
         $subtitlesList = initSubtitlesList(TEST_DIR);
         foreach ($subtitlesList as $sub) {
-            handleSubtitleFile($this->dirInfo, $sub, $this->getContext());
+            handleSubtitleFile($this->dirInfo, $sub);
         }
         $this->assertEquals(1, searchloadTest::$downloadCount);
     }
@@ -108,7 +104,7 @@ class searchloadTest extends PHPUnit_Framework_TestCase {
         $subtitlesList = initSubtitlesList(TEST_DIR);
         $html = null;
         foreach ($subtitlesList as $sub) {
-            $html.=handleSubtitleFile($this->dirInfo, $sub, $this->getContext());
+            $html.=handleSubtitleFile($this->dirInfo, $sub);
         }
         $this->assertEquals(getSearchLink($filename), $html);
         $this->assertEquals(0, searchloadTest::$downloadCount);
@@ -124,7 +120,7 @@ class searchloadTest extends PHPUnit_Framework_TestCase {
         $subtitlesList = initSubtitlesList(TEST_DIR);
         $html = null;
         foreach ($subtitlesList as $sub) {
-            $html.=handleSubtitleFile($this->dirInfo, $sub, $this->getContext());
+            $html.=handleSubtitleFile($this->dirInfo, $sub);
         }
         $this->assertEquals(getSearchLink($newFilename), $html);
         $this->assertEquals(0, searchloadTest::$downloadCount);
@@ -136,7 +132,7 @@ class searchloadTest extends PHPUnit_Framework_TestCase {
         file_put_contents($badsubPath, 'Video File: ' . base64_decode('W09oeXMtUmF3c10gUHJpc29uIFNjaG9vbCAtIDA5IChNWCAxMjgweDcyMCB4MjY0IEFBQykubXA0'));
         $subtitlesList = initSubtitlesList(TEST_DIR);
         foreach ($subtitlesList as $sub) {
-            handleSubtitleFile($this->dirInfo, $sub, $this->getContext());
+            handleSubtitleFile($this->dirInfo, $sub);
         }
         $this->assertEquals(2, searchloadTest::$downloadCount);
         $this->assertFileNotExists($badsubPath);
@@ -148,7 +144,7 @@ class searchloadTest extends PHPUnit_Framework_TestCase {
         file_put_contents($badsubPath, 'Video File: ' . base64_decode('W09oeXMtUmF3c10gVmFsa3lyaWUgRHJpdmUgTWVybWFpZCAtIDEx'));
         $subtitlesList = initSubtitlesList(TEST_DIR);
         foreach ($subtitlesList as $sub) {
-            handleSubtitleFile($this->dirInfo, $sub, $this->getContext());
+            handleSubtitleFile($this->dirInfo, $sub);
         }
         $this->assertEquals(1, searchloadTest::$downloadCount);
         $this->assertFileExists(TEST_DIR . '/' . base64_decode('W09oeXMtUmF3c10gVmFsa3lyaWUgRHJpdmUgTWVybWFpZCAtIDExIChBVC1YIDEyODB4NzIwIHgyNjQgQUFDKS5hc3M='));

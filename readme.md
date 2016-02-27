@@ -24,7 +24,7 @@ Windows Xp+, uTorrent
  - (опционально) Компилируем searchload.exe 
    
 ```
-Tools\bamcompile.exe -i:icon.ico searchload.php
+Tools\bamcompile.exe -i:icon.ico -e:Libs\php_curl.dll searchload.php
 ```
 > http://www.bambalam.se/bamcompile
 

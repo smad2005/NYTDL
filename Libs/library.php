@@ -1,5 +1,7 @@
 <?php
 
+define('USERAGENT', 'Android-x86-1.6-r2 — Mozilla/5.0 (Linux; U; Android 1.6; en-us; eeepc Build/Donut) AppleWebKit/528.5+ (KHTML, like Gecko) Version/3.1.2 Mobile Safari/525.20.1');
+
 if (!function_exists('sys_get_temp_dir')) {
 
     function sys_get_temp_dir() {
@@ -204,4 +206,12 @@ function get_basename($filename) {
     return preg_replace('/^.+[\\\\\\/]/', '', $filename);
 }
 
-?>
+function downloadString($url) {
+    $ch = curl_init();
+    curl_setopt($ch, CURLOPT_USERAGENT, USERAGENT);
+    curl_setopt($ch, CURLOPT_TIMEOUT, 20000);
+    curl_setopt($ch, CURLOPT_FOLLOWLOCATION, TRUE);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+    curl_setopt($ch, CURLOPT_URL, $url);
+    return curl_exec($ch);
+}
