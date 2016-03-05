@@ -108,8 +108,9 @@ function renameAndDownload($dirInfo, $torname, $linkmath, $html) {
     $dirname = $dirInfo["dirname"];
     // Найдена ссылка на загрузку файла - качаем
     $tmpFl = mktmpfile($linkmath[2] . '.torrent');
-    $dwnUrl = html_entity_decode($linkmath[1]);
-    file_put_contents($tmpFl, file_get_contents(str_replace("&#38;", "&", $dwnUrl)));
+    $dwnUrl = fixUrl(html_entity_decode($linkmath[1]));
+
+    downloadFile($tmpFl, strtr($dwnUrl, array("&#38;" => "&")));
     $runComand = TORCLI . ' /DIRECTORY ' . $dirname . ' ' . escapeshellarg($tmpFl);
 
     if (preg_match('~<td class="viewtorrentname">(.*?)</td>~', $html, $torFileName)) {
@@ -153,17 +154,20 @@ function handleSubtitleFile($dirInfo, $torname) {
         addQuotes($torname);
         if (!HasFoundAndDownloaded($dirInfo, $torname)) { //with quotes
             removeQutes($torname);
-            $foundInSub = renameWithNameFromSub($dirInfo, $torname);
-            if ($foundInSub && !HasFoundAndDownloaded($dirInfo, $torname)) { //with name from sub
-                addQuotes($torname);
-                if (!HasFoundAndDownloaded($dirInfo, $torname)) { //with name from sub with quotes
+            $torname["name"] = preg_replace("|\(.*?\).*|", "", $torname["name"]);
+            if (!HasFoundAndDownloaded($dirInfo, $torname)) { //with quotes
+                $foundInSub = renameWithNameFromSub($dirInfo, $torname);
+                if ($foundInSub && !HasFoundAndDownloaded($dirInfo, $torname)) { //with name from sub
+                    addQuotes($torname);
+                    if (!HasFoundAndDownloaded($dirInfo, $torname)) { //with name from sub with quotes
 // Файл не найден - будем выводить ссылку на поиск       
-                    removeQutes($torname);
+                        removeQutes($torname);
+                        return getSearchLink($torname["name"]);
+                    }
+                } else {
+                    // Файл не найден - будем выводить ссылку на поиск 
                     return getSearchLink($torname["name"]);
                 }
-            } else {
-                // Файл не найден - будем выводить ссылку на поиск   
-                return getSearchLink($torname["name"]);
             }
         }
     }

@@ -87,6 +87,15 @@ class searchloadTest extends PHPUnit_Framework_TestCase {
         $this->assertEquals(1, searchloadTest::$downloadCount);
     }
 
+    function testHandleSubtitleFile_CantfindWithoutRemovingfScopes_FindWithQuotes() {
+        $this->createFiles(array(base64_decode("W09oeXMtUmF3c10gU2FpamFrdSBNdWhhaSBubyBCYWhhbXV0IC0gMDggKEFULVggMTI4MHg3MjAgeDI2NCBBQUMpLmFzcw==")));
+        $subtitlesList = initSubtitlesList(TEST_DIR);
+        foreach ($subtitlesList as $sub) {
+            handleSubtitleFile($this->dirInfo, $sub);
+        }
+        $this->assertEquals(1, searchloadTest::$downloadCount);
+    }
+
     function testHandleSubtitleFile_CantfindWithoutQuotesWithBody_FindWithQuotes() {
         $filename = "1.ass";
         $this->createFiles(array($filename));

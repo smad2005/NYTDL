@@ -1,6 +1,6 @@
 <?php
 
-define('USERAGENT', 'Android-x86-1.6-r2 — Mozilla/5.0 (Linux; U; Android 1.6; en-us; eeepc Build/Donut) AppleWebKit/528.5+ (KHTML, like Gecko) Version/3.1.2 Mobile Safari/525.20.1');
+define('USERAGENT', 'Mozilla/5.0 (Windows NT 10.0; WOW64; rv:44.0) Gecko/20100101 Firefox/44.0');
 
 if (!function_exists('sys_get_temp_dir')) {
 
@@ -208,10 +208,48 @@ function get_basename($filename) {
 
 function downloadString($url) {
     $ch = curl_init();
+    setupCurl($ch, $url);
+    curl_setopt($ch, CURLOPT_HEADER, true);
+
+    $response = curl_exec($ch);
+    $header_size = curl_getinfo($ch, CURLINFO_HEADER_SIZE);
+    $body = substr($response, $header_size);
+    $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+
+    if ($httpcode == 302 || $httpcode == 303) {
+        $header = substr($response, 0, $header_size);
+        if (preg_match('#Location: (.*)#', $header, $r)) {
+            $url = fixUrl(trim($r[1]));
+        }
+
+        curl_setopt($ch, CURLOPT_URL, $url);
+        curl_setopt($ch, CURLOPT_HEADER, false);
+        $body = curl_exec($ch);
+    }
+    curl_close($ch);
+    return $body;
+}
+
+function downloadFile($filePath, $url) {
+    $handler = fopen($filePath, "w");
+    $ch = curl_init();
+    setupCurl($ch, $url);
+    curl_setopt($ch, CURLOPT_FILE, $handler);
+    curl_exec($ch);
+    fclose($handler);
+}
+
+function setupCurl($ch, $url) {
     curl_setopt($ch, CURLOPT_USERAGENT, USERAGENT);
     curl_setopt($ch, CURLOPT_TIMEOUT, 20000);
-    curl_setopt($ch, CURLOPT_FOLLOWLOCATION, TRUE);
+    curl_setopt($ch, CURLOPT_FOLLOWLOCATION, false);
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
     curl_setopt($ch, CURLOPT_URL, $url);
-    return curl_exec($ch);
+}
+
+function fixUrl($url) {
+    if (strpos($url, "http") !== 0) {
+        $url = "http:$url";
+    }
+    return $url;
 }
