@@ -6,7 +6,7 @@ NyaaTorrents Torrent Downloader (Автор vknkk)
 Данный PHP-скрипт предназначен для автоматизации поиска и загрузки аниме с сайта nyaa.se по **всем** имеющимся в папке субтитрам . 
 
 ## Требования
-Windows Xp+, uTorrent
+Windows Xp+, uTorrent, curl
 
 # Инструкция:
 
@@ -24,7 +24,7 @@ Windows Xp+, uTorrent
  - (опционально) Компилируем searchload.exe 
    
 ```
-Tools\bamcompile.exe -i:icon.ico -e:Libs\php_curl.dll searchload.php
+Tools\bamcompile.exe -i:icon.ico searchload.php
 ```
 > http://www.bambalam.se/bamcompile
 

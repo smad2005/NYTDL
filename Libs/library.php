@@ -207,49 +207,18 @@ function get_basename($filename) {
 }
 
 function downloadString($url) {
-    $ch = curl_init();
-    setupCurl($ch, $url);
-    curl_setopt($ch, CURLOPT_HEADER, true);
-
-    $response = curl_exec($ch);
-    $header_size = curl_getinfo($ch, CURLINFO_HEADER_SIZE);
-    $body = substr($response, $header_size);
-    $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-
-    if ($httpcode == 302 || $httpcode == 303) {
-        $header = substr($response, 0, $header_size);
-        if (preg_match('#Location: (.*)#', $header, $r)) {
-            $url = fixUrl(trim($r[1]));
-        }
-
-        curl_setopt($ch, CURLOPT_URL, $url);
-        curl_setopt($ch, CURLOPT_HEADER, false);
-        $body = curl_exec($ch);
-    }
-    curl_close($ch);
-    return $body;
+    $exec = "curl -k -L \"$url\"";
+    return exec($exec);
 }
 
 function downloadFile($filePath, $url) {
-    $handler = fopen($filePath, "w");
-    $ch = curl_init();
-    setupCurl($ch, $url);
-    curl_setopt($ch, CURLOPT_FILE, $handler);
-    curl_exec($ch);
-    fclose($handler);
-}
-
-function setupCurl($ch, $url) {
-    curl_setopt($ch, CURLOPT_USERAGENT, USERAGENT);
-    curl_setopt($ch, CURLOPT_TIMEOUT, 20000);
-    curl_setopt($ch, CURLOPT_FOLLOWLOCATION, false);
-    curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-    curl_setopt($ch, CURLOPT_URL, $url);
+    $exec = "curl -k -L -o \"$filePath\" \"$url\"";
+    exec($exec);
 }
 
 function fixUrl($url) {
-    if (strpos($url, "http") !== 0) {
-        $url = "http:$url";
+    if (strpos($url, "https") !== 0) {
+        $url = "https:$url";
     }
     return $url;
 }
