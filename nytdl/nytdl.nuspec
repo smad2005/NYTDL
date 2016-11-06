@@ -5,7 +5,7 @@
     <!-- Read this before publishing packages to chocolatey.org: https://github.com/chocolatey/chocolatey/wiki/CreatePackages -->
     <id>nytdl</id>
     <title>NYTDL</title>
-    <version>1.1.15</version>
+    <version>1.1.25</version>
     <authors>smad2005, vknkk</authors>
     <owners>smad2005</owners>
     <summary>NyaaTorrents Torrent Downloader</summary>
@@ -22,10 +22,9 @@ Windows Xp+, uTorrent, .Net Framework 2.0+</description>
     <licenseUrl>https://raw.githubusercontent.com/smad2005/NYTDL/master/LICENSE</licenseUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <iconUrl>https://cdn.rawgit.com/smad2005/NYTDL/chocolatey/Logo.png</iconUrl>
-    <!--<dependencies>
-      <dependency id="" version="__VERSION__" />
-      <dependency id="" />
-    </dependencies>-->
+    <dependencies>
+      <dependency id="curl" version="7.28.1" />
+    </dependencies>
     <releaseNotes> Resolved problem with https</releaseNotes>
     <!--<provides></provides>-->
   </metadata>
