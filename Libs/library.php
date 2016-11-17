@@ -208,12 +208,12 @@ function get_basename($filename) {
 
 function downloadString($url) {
     $exec = "curl -s -k -L \"$url\"";
-    return exec($exec);
+    return `$exec`;
 }
 
 function downloadFile($filePath, $url) {
     $exec = "curl -s -k -L -o \"$filePath\" \"$url\"";
-    exec($exec);
+    `$exec`;
 }
 
 function fixUrl($url) {
